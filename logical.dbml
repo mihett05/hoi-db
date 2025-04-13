@@ -1,0 +1,202 @@
+enum ideology {
+  democratic
+  communism
+  facism
+  neutrality
+}
+
+enum subideology {
+  conservatism
+  liberalism
+  socialism
+  populism
+  marxism
+  leninism
+  stalinism
+  anti_revisionism
+  anarchist_communism
+  nazism
+  gen_nazism
+  fascism_ideology
+  falangism
+  rexism
+  despotism
+  oligarchism
+  anarchism
+  moderatism
+  centrism
+}
+
+enum diplomacy_state {
+  war
+  ceasefire
+  alliance
+  improvement
+  passage_right
+  berth_right
+  guarantee
+  control
+}
+
+enum state_building_type {
+  infrastructure
+  arms_factory
+  industrial_complex
+  air_base
+  naval_facility
+  stronghold_network
+  dockyard
+  anti_air_building
+  synthetic_refinery
+  fuel_silo
+  radar_station
+  mega_gun_emplacement
+  rocket_site
+  nuclear_reactor
+  nuclear_reactor_heavy_water
+  commercial_nuclear_reactor
+  nuclear_facility
+  air_facility
+  land_facility
+}
+
+enum land_type {
+  forest
+  hills
+  plains
+  mountain
+  urban
+  marsh
+  desert
+  jungle
+}
+
+enum province_building_type {
+  supply_node
+  rail_way
+  naval_facility
+  naval_base
+  bunker
+  coastal_bunker
+  nuclear_facility
+  air_facility
+  land_facility
+  dam
+  dam_mountain
+  canal_kiel
+  canal_panama
+}
+
+Table countries {
+  country_id serial [pk]
+  code text [unique, not null]
+  
+  indexes {
+    code [name: 'idx_country_code']
+  }
+}
+
+Table leaders {
+  leader_id serial [pk]
+  country_id integer [not null, ref: > countries.country_id]
+  ideology subideology
+}
+
+Table parties {
+  party_id serial [pk]
+  country_id integer [not null, ref: > countries.country_id]
+  ideology ideology
+}
+
+Table politics_states {
+  state_id serial [pk]
+  country_id integer [not null, ref: > countries.country_id]
+  current_party_id integer [ref: > parties.party_id]
+  current_leader_id integer [ref: > leaders.leader_id]
+  
+}
+
+Table diplomacy_states {
+  sender_country_id integer [not null, ref: > countries.country_id ]
+  receiver_country_id integer [not null, ref: > countries.country_id ]
+  state diplomacy_state [not null]
+  
+  indexes {
+    (sender_country_id, receiver_country_id, state) [pk]
+  }
+}
+
+Table focuses {
+  focus_id serial [pk]
+  country_id integer [not null, ref: > countries.country_id ]
+  uid text [unique, not null]
+  cost integer [not null]
+}
+
+Table focuses_prerequisites {
+  focus_id integer [not null, ref: > focuses.focus_id ]
+  required_focus_id integer [not null, ref: > focuses.focus_id ]
+}
+
+Table states {
+  state_id serial [pk]
+  owner_id integer [not null, ref: > countries.country_id ]
+  name text [not null]
+  manpower integer [not null]
+}
+
+Table states_buildings {
+  building_id serial [pk]
+  state_id integer [not null, ref: > states.state_id ]
+  building_type state_building_type [not null]
+}
+
+Table provinces {
+  province_id serial [pk]
+  controller_id integer [not null, ref: > countries.country_id ]
+  state_id integer [not null, ref: > states.state_id ]
+  map_color integer [not null]
+  land_type land_type [not null]
+  is_coast boolean [not null]
+}
+
+Table provinces_buildings {
+  building_id serial [pk]
+  province_id integer [not null, ref: > provinces.province_id ]
+  building_type province_building_type [not null]
+}
+
+Table generals {
+  general_id serial [pk]
+  country_id integer [not null, ref: > countries.country_id ]
+  name text [not null]
+  skill integer [not null]
+  attack_skill integer [not null]
+  defense_skill integer [not null]
+  planning_skill integer [not null]
+  logistics_skill integer [not null]
+}
+
+Table armies_groups {
+  group_id serial [pk]
+  general_id integer [ref: > generals.general_id ]
+}
+
+Table armies {
+  army_id serial [pk]
+  general_id integer [ref: > generals.general_id ]
+  group_id integer [ref: > armies_groups.group_id ]
+}
+
+Table divisions_templates {
+  template_id serial [pk]
+  name text [not null]
+  country_id integer [not null, ref: > countries.country_id ]
+}
+
+Table divisions {
+  division_id serial [pk]
+  template_id integer [not null, ref: > divisions_templates.template_id ]
+  location_id integer [not null, ref: > provinces.province_id ]
+  army_id integer [ref: > armies.army_id ]
+}
