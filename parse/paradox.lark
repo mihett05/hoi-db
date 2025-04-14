@@ -1,0 +1,33 @@
+%import common.ESCAPED_STRING
+%import common.DIGIT
+%import common.LETTER
+%import common.WS
+%import common.SH_COMMENT
+%import common.NEWLINE
+
+CNAME.4: ("_"|"."|":"|"-"|LETTER|DIGIT)+
+DATE.3: /\d+\.\d+\.\d+(\.\d+)?/
+SIGNED_INT.2: /-?\d+/
+SIGNED_NUMBER.1: /-?\d+(?:\.\d+)?/
+
+start: (statement | NEWLINE)*
+
+statement: key ("=" | ">" | "<") value
+key: CNAME -> id | DATE -> date | SIGNED_NUMBER -> number | ESCAPED_STRING -> string
+value: atom | array | object
+
+atom: SIGNED_NUMBER -> number
+    | DATE -> date
+    | ESCAPED_STRING -> string
+    | CNAME -> id
+
+array: "{" array_content "}"
+array_content: NEWLINE* (value ((NEWLINE | ",")* value)*) (NEWLINE | ",")*
+
+object: "{" [object_content | empty_object] "}"
+object_content: NEWLINE* (statement (NEWLINE* statement)*) NEWLINE*
+empty_object: NEWLINE*
+
+
+%ignore /[ \t\f]+/
+%ignore SH_COMMENT
