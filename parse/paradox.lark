@@ -5,7 +5,7 @@
 %import common.SH_COMMENT
 %import common.NEWLINE
 
-CNAME.4: ("_"|"."|":"|"-"|LETTER|DIGIT)+
+CNAME.4: ("_"|"."|":"|"-"|"|"|"@"|"^"|"?"|"["|"]"|LETTER|DIGIT)+
 DATE.3: /\d+\.\d+\.\d+(\.\d+)?/
 SIGNED_INT.2: /-?\d+/
 SIGNED_NUMBER.1: /-?\d+(?:\.\d+)?/

@@ -113,6 +113,29 @@ def gen_sql_generals(generals: dict[list]):
     save_seed("generals", sql)
 
 
+def gen_sql_focuses(focuses: list[dict]):
+    values = ",\n".join(
+        [
+            f"    (({add_code_subquery(focus['tag'])}), '{focus['uid']}', {focus['cost']})"
+            for focus in focuses
+        ]
+    )
+
+    sql = f"INSERT INTO focuses(country_id, uid, cost) VALUES\n{values}\n"
+
+    focuses_value = ",\n".join(
+        [
+            f"    ((SELECT focus_id FROM focuses WHERE uid = '{focus['tag']}'), (SELECT focus_id FROM focuses WHERE uid = '{pre}'))"
+            for focus in focuses
+            for pre in focus["prerequisites"]
+        ]
+    )
+
+    sql += f"INSERT INTO focuses_prerequisites(focus_id, required_focus_id) VALUES\n{focuses_value}\n"
+
+    save_seed("focuses", sql)
+
+
 def save_seed(seed_name: str, sql: str):
     seeds = Path("..") / "seeds"
     if not seeds.exists():
