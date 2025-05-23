@@ -10,7 +10,7 @@ CREATE INDEX IF NOT EXISTS idx_country_code ON countries(code);
 
 DO $$ BEGIN
   IF to_regtype('ideology') IS NULL THEN
-    CREATE TYPE ideology AS ENUM ('democratic', 'communism', 'facism', 'neutrality');
+    CREATE TYPE ideology AS ENUM ('democratic', 'communism', 'fascism', 'neutrality');
   END IF;
 END $$;
 
@@ -28,6 +28,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS leaders(
   leader_id SERIAL PRIMARY KEY,
   country_id INTEGER NOT NULL,
+  name TEXT NOT NULL,
   ideology subideology NOT NULL,
   
   FOREIGN KEY (country_id) REFERENCES countries(country_id) ON DELETE CASCADE
